@@ -1,0 +1,130 @@
+displayName: GKE-Custom-Metrics
+gridLayout:
+  columns: '2'
+  widgets:
+  - title: Top CPU Utilization
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - legendTemplate: ${metadata.system_labels\.name}
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              groupByFields:
+              - metadata.system_labels.name
+              - resource.labels.zone
+              - resource.labels.project_id
+              perSeriesAligner: ALIGN_MEAN
+            filter: resource.type="gce_instance" AND metric.type="compute.googleapis.com/instance/cpu/utilization"
+            pickTimeSeriesFilter:
+              direction: TOP
+              numTimeSeries: 10
+              rankingMethod: METHOD_MEAN
+          unitOverride: ratio
+      yAxis:
+        scale: LINEAR
+  - title: VM Memory Used [MEAN]
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_MEAN
+            filter: metric.type="compute.googleapis.com/instance/memory/balloon/ram_used"
+              resource.type="gce_instance"
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR
+  - title: CPU limit utilization [MEAN]
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              crossSeriesReducer: REDUCE_MEAN
+              groupByFields:
+              - resource.label."namespace_name"
+              - resource.label."pod_name"
+              perSeriesAligner: ALIGN_MEAN
+            filter: metric.type="kubernetes.io/container/cpu/limit_utilization" resource.type="k8s_container"
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR
+  - title: Memory limit utilization [MEAN]
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              crossSeriesReducer: REDUCE_MEAN
+              groupByFields:
+              - resource.label."namespace_name"
+              - resource.label."pod_name"
+              perSeriesAligner: ALIGN_MEAN
+            filter: metric.type="kubernetes.io/container/memory/limit_utilization"
+              resource.type="k8s_container"
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR
+  - title: Container Restarts
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_RATE
+            filter: metric.type="kubernetes.io/container/restart_count" resource.type="k8s_container"
+            secondaryAggregation:
+              alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_MEAN
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR
+  - title: Client Roundtrip Latencies [50TH PERCENTILE]
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              crossSeriesReducer: REDUCE_PERCENTILE_50
+              groupByFields:
+              - metric.label."destination_service_name"
+              perSeriesAligner: ALIGN_DELTA
+            filter: metric.type="istio.io/service/client/roundtrip_latencies" resource.type="k8s_pod"
+            secondaryAggregation:
+              alignmentPeriod: 60s
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR

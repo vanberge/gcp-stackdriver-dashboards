@@ -1,6 +1,6 @@
 displayName: GKE-Custom-Metrics
 gridLayout:
-  columns: '2'
+  columns: '3'
   widgets:
   - title: Top CPU Utilization
     xyChart:
@@ -122,6 +122,23 @@ gridLayout:
               - metric.label."destination_service_name"
               perSeriesAligner: ALIGN_DELTA
             filter: metric.type="istio.io/service/client/roundtrip_latencies" resource.type="k8s_pod"
+      timeshiftDuration: 0s
+      yAxis:
+        label: y1Axis
+        scale: LINEAR
+  - title: Server Response Latencies [50TH PERCENTILE]
+    xyChart:
+      chartOptions:
+        mode: COLOR
+      dataSets:
+      - minAlignmentPeriod: 60s
+        plotType: LINE
+        timeSeriesQuery:
+          timeSeriesFilter:
+            aggregation:
+              alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_PERCENTILE_50
+            filter: metric.type="istio.io/service/server/response_latencies" resource.type="k8s_container"
             secondaryAggregation:
               alignmentPeriod: 60s
       timeshiftDuration: 0s
